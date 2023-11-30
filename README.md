@@ -3,7 +3,9 @@
 ### Aufgabenstellung:
 
 ### Zeiterfassung:
-  |Datum|Wer|Dauer|Was|
-  |22.11.2023|Ronja|5h|Preprocessing Matches-CSV|
-  |24.11.2023|Ronja|2h|Preprocessing Matches-CSV|
+
+  | Datum | Wer | Dauer | Was |
+  | ----- | --- | ----- | --- |
+  | 22.11.2023 | Ronja | 5h | Preprocessing Matches-CSV |
+  | 24.11.2023 | Ronja | 2h | Preprocessing Matches-CSV |
 
