@@ -4,8 +4,10 @@
 
 ### Zeiterfassung:
 
-  | Datum | Wer | Dauer | Was |
-  | ----- | --- | ----- | --- |
-  | 22.11.2023 | Ronja | 5h | Preprocessing Matches-CSV |
-  | 24.11.2023 | Ronja | 2h | Preprocessing Matches-CSV |
+| Datum      | Wer   | Dauer | Was                       |
+|------------|-------|-------|---------------------------|
+| 21.11.2023 | Tim   | 4h    | Angefangen mit Frage 1    |
+| 22.11.2023 | Ronja | 5h    | Preprocessing Matches-CSV |
+| 24.11.2023 | Ronja | 2h    | Preprocessing Matches-CSV |
+| 03.01.2024 | Tim   | 6h    | Model Training            |
 

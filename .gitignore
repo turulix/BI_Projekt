@@ -1,0 +1,5 @@
+.idea
+.venv
+training/.sweep_id
+training/wandb
+training/model_output
