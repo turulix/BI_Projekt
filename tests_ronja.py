@@ -1,43 +1,44 @@
 import pandas as pd
+from geopy.geocoders import MapBox
 
-# Read the CSV file with the correct delimiter
-df = pd.read_csv('/home/ronja/documents/studium/bi-project/data/atp_matches_till_2022_preprocessed.csv', delimiter=';', low_memory=False)
+# Read the CSV file
+df = pd.read_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022.csv', sep=';')
 
-# Convert 'tourney_date' column to datetime
-df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d')
+# Create a geocoder object
+geolocator = MapBox(api_key='pk.eyJ1Ijoicm9uamFzIiwiYSI6ImNscjI1bjZvMzB3dDAya3A4d2dieXkzbDMifQ.UYrZLJc6JNKgJdDzcqifNA')
 
-# Sort by 'tourney_date'
-df = df.sort_values('tourney_date')
+print(df.head())
 
-# Extract the year from 'tourney_date' and create a new column 'year'
-df['year'] = df['tourney_date'].dt.year
+# Create a dictionary to store the coordinates for each location
+location_coordinates = {}
 
+# Iterate over each row in the DataFrame
+for index, row in df.iterrows():
+    location = row['tourney_location']
 
-# Create a DataFrame for matches played by each player
-df_player = pd.concat([df[['year', 'tourney_date', 'winner_id']].rename(columns={'winner_id': 'player_id'}), 
-                       df[['year', 'tourney_date', 'loser_id']].rename(columns={'loser_id': 'player_id'})])
+    # Check if the location contains 'davis'
+    if 'Davis' in location:
+        continue
 
-# Sort by 'year', 'player_id' and 'tourney_date'
-df_player = df_player.sort_values(['year', 'player_id', 'tourney_date'])
+    # Check if the location is already in the dictionary
+    if location in location_coordinates:
+        latitude, longitude = location_coordinates[location]
+    else:
+        # Geocode the location to get the coordinates
+        try:
+            coordinates = geolocator.geocode(location)
+            latitude = coordinates.latitude
+            longitude = coordinates.longitude
 
-# Calculate the cumulative count of matches for each player each year
-df_player['cumulative_matches'] = df_player.groupby(['year', 'player_id']).cumcount() + 1
+            # Store the coordinates in the dictionary
+            location_coordinates[location] = (latitude, longitude)
+        except Exception as e:
+            print(f"Error occurred while geocoding location {location}: {e}")
+            continue
 
-# Calculate the total number of matches played by each player each year
-df_player['total_matches'] = df_player.groupby(['year', 'player_id'])['player_id'].transform('count')
+    # Update the corresponding row in the DataFrame
+    df.at[index, 'latitude'] = latitude
+    df.at[index, 'longitude'] = longitude
 
-# Calculate the ratio of cumulative matches to total matches
-df_player['match_ratio'] = df_player['cumulative_matches'] / df_player['total_matches']
-
-# Merge the match_ratio for the winner and the loser back into the original DataFrame
-df = pd.merge(df, df_player[['year', 'tourney_date', 'player_id', 'match_ratio']], 
-              how='left', left_on=['year', 'tourney_date', 'winner_id'], right_on=['year', 'tourney_date', 'player_id'])
-df = df.rename(columns={'match_ratio': 'winner_match_ratio'}).drop(columns='player_id')
-
-df = pd.merge(df, df_player[['year', 'tourney_date', 'player_id', 'match_ratio']], 
-              how='left', left_on=['year', 'tourney_date', 'loser_id'], right_on=['year', 'tourney_date', 'player_id'])
-df = df.rename(columns={'match_ratio': 'loser_match_ratio'}).drop(columns='player_id')
-
-
-# Save the modified DataFrame back to the CSV file
-df.to_csv('/home/ronja/documents/studium/bi-project/data/atp_matches_till_2022_preprocessed_2.csv', index=False)
+# Save the updated DataFrame back to the CSV file
+df.to_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022.csv', index=False)
