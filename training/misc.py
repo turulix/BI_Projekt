@@ -1,15 +1,17 @@
 import os
 import pathlib
 import pickle
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import sklearn
+
 import wandb
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from wandb.sklearn import plot_feature_importances
-
 
 def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.DataFrame) -> pd.DataFrame:
     """
@@ -17,13 +19,19 @@ def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.Da
     It also adds new features like Year and Month and fills NaN values with 0.
     """
 
+    data["tourney_date"] = pd.to_datetime(data["tourney_date"], format="%Y%m%d")
+
     final_data = pd.DataFrame()
     final_data["tourny_id"] = data["tourney_id"]
     final_data["tourney_name"] = data["tourney_name"]
+    final_data["tourney_date"] = data["tourney_date"]
     final_data["surface"] = data["surface"]
     final_data["draw_size"] = data["draw_size"]
     final_data["tourney_level"] = data["tourney_level"]
     final_data["best_of"] = data["best_of"]
+    final_data["match_num"] = data["match_num"]
+    final_data["year"] = data["tourney_date"].dt.year
+    final_data["month"] = data["tourney_date"].dt.month
 
     generator = np.random.default_rng(42)
 
@@ -60,7 +68,44 @@ def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.Da
     final_data["player_1_entry"] = np.where(random_numbers > 0.5, data["winner_entry"], data["loser_entry"])
     final_data["player_2_entry"] = np.where(random_numbers > 0.5, data["loser_entry"], data["winner_entry"])
 
-    final_data["winner"] = np.where(random_numbers > 0.5, 1, 2)
+    final_data["winner"] = np.where(random_numbers > 0.5, 0, 1)
+
+    # Fill NaN values with Median.
+    final_data["player_1_age"].fillna(final_data["player_1_age"].median(), inplace=True)
+    final_data["player_2_age"].fillna(final_data["player_2_age"].median(), inplace=True)
+    final_data["player_1_ht"].fillna(final_data["player_1_ht"].median(), inplace=True)
+    final_data["player_2_ht"].fillna(final_data["player_2_ht"].median(), inplace=True)
+    final_data["player_1_rank_points"].fillna(final_data["player_1_rank_points"].median(), inplace=True)
+    final_data["player_2_rank_points"].fillna(final_data["player_2_rank_points"].median(), inplace=True)
+
+    final_data["player_1_rank"].fillna(0, inplace=True)
+    final_data["player_2_rank"].fillna(0, inplace=True)
+
+    final_data["player_1_seed"].fillna(0, inplace=True)
+    final_data["player_2_seed"].fillna(0, inplace=True)
+
+    final_data["player_1_entry"].fillna("none", inplace=True)
+    final_data["player_2_entry"].fillna("none", inplace=True)
+
+    # Calculate the winner's age difference to the loser.
+    final_data["age_difference"] = (final_data["player_1_age"] - final_data["player_2_age"]).abs()
+
+    # Calculate the winner's rank difference to the loser.
+    final_data["rank_difference"] = (final_data["player_1_rank"] - final_data["player_2_rank"]).abs()
+
+    final_data.dropna(inplace=True)
+    print(f"Number of rows after dropping NaNs: {len(final_data)}")
+    print(f"Number of rows before dropping NaNs: {len(data)}")
+    print(f"Number of rows dropped: {len(data) - len(final_data)}")
+
+    final_data["player_1_hand"] = final_data["player_1_hand"].apply(lambda x: x.upper())
+    final_data["player_2_hand"] = final_data["player_2_hand"].apply(lambda x: x.upper())
+
+    final_data["player_1_ioc"] = final_data["player_1_ioc"].apply(lambda x: x.upper())
+    final_data["player_2_ioc"] = final_data["player_2_ioc"].apply(lambda x: x.upper())
+
+    final_data["player_1_entry"] = final_data["player_1_entry"].apply(lambda x: x.lower())
+    final_data["player_2_entry"] = final_data["player_2_entry"].apply(lambda x: x.lower())
 
     return final_data
 
@@ -75,36 +120,59 @@ def get_train_data(train_data: pd.DataFrame, test_data: pd.DataFrame) -> (pd.Dat
     test_data = process_data(test_data, rank_data, player_data)
 
     # Split the data into features and target and drop columns that are meant to be predicted.
-    train_features = train_data.drop(columns=["Sales", "Customers"])
-    train_target = train_data["Sales"]
+    train_features = train_data.drop(columns=["winner"])
+    train_target = train_data["winner"]
 
-    test_features = test_data.drop(columns=["Sales", "Customers"])
-    test_target = test_data["Sales"]
+    test_features = test_data.drop(columns=["winner"])
+    test_target = test_data["winner"]
 
     # Create a ColumnTransformer to transform the data.
     column_transformer = ColumnTransformer([
         ("Drop Unused", "drop", [
             "tourny_id",
             "tourney_name",
+            "player_1_id",
+            "player_2_id",
         ]),
         ("One Hot Encode", OneHotEncoder(handle_unknown="ignore"), [
             "surface",
-            "tourney_level"
+            "tourney_level",
+            "player_1_entry",
+            "player_2_entry",
+            "player_1_hand",
+            "player_2_hand",
+            "player_1_ioc",
+            "player_2_ioc",
         ]),
         ("Scale", StandardScaler(), [
             "draw_size",
+            "match_num",
+            "player_1_age",
+            "player_2_age",
+            "player_1_rank",
+            "player_2_rank",
+            "player_1_ht",
+            "player_2_ht",
+            "player_1_rank_points",
+            "player_2_rank_points",
+            "player_1_seed",
+            "player_2_seed",
+            "age_difference",
+            "rank_difference",
         ])
     ], remainder="passthrough")
 
     # Fit the transformer on the feature dataframe.
     # Reason for this is that the transformer needs to stay consistent between training and testing.
     # We don't want to process the data differently between training and testing.
-    column_transformer.fit(train_features)
+    column_transformer.fit(train_features, train_target)
 
     return (
-        pd.DataFrame(column_transformer.transform(train_features), columns=column_transformer.get_feature_names_out()),
+        pd.DataFrame.sparse.from_spmatrix(column_transformer.transform(train_features),
+                                          columns=column_transformer.get_feature_names_out()),
         train_target,
-        pd.DataFrame(column_transformer.transform(test_features), columns=column_transformer.get_feature_names_out()),
+        pd.DataFrame.sparse.from_spmatrix(column_transformer.transform(test_features),
+                                          columns=column_transformer.get_feature_names_out()),
         test_target
     )
 
@@ -154,8 +222,14 @@ def train_and_evaluate(model, x_train: pd.DataFrame, y_train: pd.Series, x_test:
 
     # Split the data into trainings data & validation data.
     test_scores = []
-    val_scores = []
+
     train_scores = []
+
+    f1_scores = []
+    precision_scores = []
+    recall_scores = []
+    accuracy_scores = []
+    auc_scores = []
 
     # Iterate over the splits.
     for index, (train_index, val_index) in enumerate(kfold.split(x_train, y_train)):
@@ -163,25 +237,47 @@ def train_and_evaluate(model, x_train: pd.DataFrame, y_train: pd.Series, x_test:
         x_train_real, x_val = x_train.iloc[train_index], x_train.iloc[val_index]
         y_train_real, y_val = y_train.iloc[train_index], y_train.iloc[val_index]
 
+        print(f"Strarting training of model for split {index}")
+        time = datetime.now()
         # Fit the model on the training's data.
         model.fit(x_train_real, y_train_real)
 
+        print(f"Training time: {datetime.now() - time}")
+
         # Evaluate the model on the different datasets.
         train_score = model.score(x_train_real, y_train_real)
-        val_score = model.score(x_val, y_val)
         test_score = model.score(x_test, y_test)
 
         # Store the scores. To calculate the mean later.
-        val_scores.append(val_score)
         train_scores.append(train_score)
         test_scores.append(test_score)
+
+        test_predictions = model.predict(x_test)
+
+        # Calculate the F1 score.
+        f1_score = sklearn.metrics.f1_score(y_test, test_predictions)
+        accuracy_score = sklearn.metrics.accuracy_score(y_test, test_predictions)
+        precision_score = sklearn.metrics.precision_score(y_test, test_predictions)
+        recall_score = sklearn.metrics.recall_score(y_test, test_predictions)
+        false_positive_rate, true_positive_rate, thresholds = sklearn.metrics.roc_curve(y_test, test_predictions)
+        roc_auc = sklearn.metrics.auc(false_positive_rate, true_positive_rate)
+
+        f1_scores.append(f1_score)
+        accuracy_scores.append(accuracy_score)
+        precision_scores.append(precision_score)
+        recall_scores.append(recall_score)
+        auc_scores.append(roc_auc)
 
         # Log the scores and the model. To WandB.
         run.log({
             "split": index,
-            "val_score": val_score,
             "train_score": train_score,
             "test_score": test_score,
+            "f1_score": f1_score,
+            "accuracy_score": accuracy_score,
+            "precision_score": precision_score,
+            "recall_score": recall_score,
+            "auc_score": roc_auc,
         })
 
         # Plot the feature importance.
@@ -204,9 +300,13 @@ def train_and_evaluate(model, x_train: pd.DataFrame, y_train: pd.Series, x_test:
 
     # Log the mean scores.
     run.log({
-        "mean_val_score": sum(val_scores) / len(val_scores),
         "mean_train_score": sum(train_scores) / len(train_scores),
         "mean_test_score": sum(test_scores) / len(test_scores),
+        "mean_f1_score": sum(f1_scores) / len(f1_scores),
+        "mean_accuracy_score": sum(accuracy_scores) / len(accuracy_scores),
+        "mean_precision_score": sum(precision_scores) / len(precision_scores),
+        "mean_recall_score": sum(recall_scores) / len(recall_scores),
+        "mean_auc_score": sum(auc_scores) / len(auc_scores),
     })
 
     # Finish the run.
