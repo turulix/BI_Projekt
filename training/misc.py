@@ -13,13 +13,14 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from wandb.sklearn import plot_feature_importances
 
-def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.DataFrame) -> pd.DataFrame:
+
+def process_data(data: pd.DataFrame) -> pd.DataFrame:
     """
     This function processes the data. It joins the stores data with the train data.
     It also adds new features like Year and Month and fills NaN values with 0.
     """
 
-    data["tourney_date"] = pd.to_datetime(data["tourney_date"], format="%Y%m%d")
+    data["tourney_date"] = pd.to_datetime(data["tourney_date"], format="%Y-%m-%d")
 
     final_data = pd.DataFrame()
     final_data["tourny_id"] = data["tourney_id"]
@@ -68,6 +69,27 @@ def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.Da
     final_data["player_1_entry"] = np.where(random_numbers > 0.5, data["winner_entry"], data["loser_entry"])
     final_data["player_2_entry"] = np.where(random_numbers > 0.5, data["loser_entry"], data["winner_entry"])
 
+    final_data["player_1_win_rate"] = np.where(random_numbers > 0.5, data["winner_win_rate"], data["loser_win_rate"])
+    final_data["player_2_win_rate"] = np.where(random_numbers > 0.5, data["loser_win_rate"], data["winner_win_rate"])
+
+    final_data["player_1_loss_rate"] = np.where(random_numbers > 0.5, data["winner_loss_rate"], data["loser_loss_rate"])
+    final_data["player_2_loss_rate"] = np.where(random_numbers > 0.5, data["loser_loss_rate"], data["winner_loss_rate"])
+
+    final_data["player_1_total_games_played"] = np.where(random_numbers > 0.5, data["winner_total_games_played"],
+                                                         data["loser_total_games_played"])
+    final_data["player_2_total_games_played"] = np.where(random_numbers > 0.5, data["loser_total_games_played"],
+                                                         data["winner_total_games_played"])
+
+    final_data["player_1_total_games_won"] = np.where(random_numbers > 0.5, data["winner_total_games_won"],
+                                                      data["loser_total_games_won"])
+    final_data["player_2_total_games_won"] = np.where(random_numbers > 0.5, data["loser_total_games_won"],
+                                                      data["winner_total_games_won"])
+
+    final_data["player_1_total_games_lost"] = np.where(random_numbers > 0.5, data["winner_total_games_lost"],
+                                                       data["loser_total_games_lost"])
+    final_data["player_2_total_games_lost"] = np.where(random_numbers > 0.5, data["loser_total_games_lost"],
+                                                       data["winner_total_games_lost"])
+
     final_data["winner"] = np.where(random_numbers > 0.5, 0, 1)
 
     # Fill NaN values with Median.
@@ -112,12 +134,12 @@ def process_data(data: pd.DataFrame, rank_data: pd.DataFrame, player_data: pd.Da
 
 def get_train_data(train_data: pd.DataFrame, test_data: pd.DataFrame) -> (pd.DataFrame, pd.Series):
     # Load Ranking & Player Data.
-    rank_data = pd.read_csv("../data/atp_rankings_till_2022.csv")
-    player_data = pd.read_csv("../data/atp_players_till_2022.csv")
+    # rank_data = pd.read_csv("../data/atp_rankings_till_2022.csv")
+    # player_data = pd.read_csv("../data/atp_players_till_2022.csv")
 
     # Process the data, join the Rank & Player data with the train data.
-    train_data = process_data(train_data, rank_data, player_data)
-    test_data = process_data(test_data, rank_data, player_data)
+    train_data = process_data(train_data)
+    test_data = process_data(test_data)
 
     # Split the data into features and target and drop columns that are meant to be predicted.
     train_features = train_data.drop(columns=["winner"])
@@ -133,6 +155,7 @@ def get_train_data(train_data: pd.DataFrame, test_data: pd.DataFrame) -> (pd.Dat
             "tourney_name",
             "player_1_id",
             "player_2_id",
+            "tourney_date",
         ]),
         ("One Hot Encode", OneHotEncoder(handle_unknown="ignore"), [
             "surface",
@@ -159,6 +182,18 @@ def get_train_data(train_data: pd.DataFrame, test_data: pd.DataFrame) -> (pd.Dat
             "player_2_seed",
             "age_difference",
             "rank_difference",
+            "player_1_win_rate",
+            "player_2_win_rate",
+            "player_1_loss_rate",
+            "player_2_loss_rate",
+            "player_1_total_games_played",
+            "player_2_total_games_played",
+            "player_1_total_games_won",
+            "player_2_total_games_won",
+            "player_1_total_games_lost",
+            "player_2_total_games_lost",
+            "year",
+            "month",
         ])
     ], remainder="passthrough")
 

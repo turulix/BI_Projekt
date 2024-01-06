@@ -14,17 +14,16 @@ project = "BI_Project"
 # Settings for the WandB Sweep, we are using a grid search here.
 sweep_configuration = {
     "method": "bayes",
-    "name": f"{model_type} - Predicting Wins",
+    "name": f"{model_type} - Predicting Wins | Win Stats",
     "metric": {
         "goal": "maximize",
         "name": "mean_test_score"
     },
     "parameters": {
-        #  "model": {"values": ["random_forest", "gradient_boosting"]},
         "n_estimators": {
             "distribution": "int_uniform",
             "min": 100,
-            "max": 1000
+            "max": 2000
         },
         "max_depth": {
             "distribution": "int_uniform",
@@ -40,6 +39,11 @@ sweep_configuration = {
             "distribution": "uniform",
             "min": 0.01,
             "max": 0.5
+        },
+        "min_samples_split": {
+            "distribution": "int_uniform",
+            "min": 2,
+            "max": 16
         },
 
         # The following parameters are not used by the model, but are used by the training script.
@@ -69,6 +73,7 @@ def main():
         learning_rate=run.config.learning_rate,
         max_depth=run.config.max_depth,
         max_features=run.config.max_features,
+        min_samples_split=run.config.min_samples_split,
     )
 
     train_and_evaluate(model, x_train, y_train, x_test, y_test, run)
