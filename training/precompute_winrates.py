@@ -19,9 +19,15 @@ def calculate_career_win_rate(df, player_id, match_nr, tourney_date):
         cache_hits += 1
         return cache[(player_id, tourney_date, match_nr)]
 
+    #
     filtered_df = df[
-        (df["tourney_date"] < tourney_date) & (df["match_num"] < match_nr) & ((df["winner_id"] == player_id) | (
-                df["loser_id"] == player_id))]
+        (df["tourney_date"] <= tourney_date) & ((df["winner_id"] == player_id) | (df["loser_id"] == player_id)) &
+        (
+                ((df["match_num"] < match_nr) & (df["tourney_date"] == tourney_date)) |
+                (df["tourney_date"] < tourney_date)
+        )
+        ]
+
     total_games_played = len(filtered_df)
 
     if total_games_played == 0:
