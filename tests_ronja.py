@@ -2,7 +2,7 @@ import pandas as pd
 from geopy.geocoders import MapBox
 
 # Read the CSV file
-df = pd.read_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022.csv', sep=';')
+df = pd.read_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022.csv')
 
 # Create a geocoder object
 geolocator = MapBox(api_key='pk.eyJ1Ijoicm9uamFzIiwiYSI6ImNscjI1bjZvMzB3dDAya3A4d2dieXkzbDMifQ.UYrZLJc6JNKgJdDzcqifNA')
@@ -41,4 +41,4 @@ for index, row in df.iterrows():
     df.at[index, 'longitude'] = longitude
 
 # Save the updated DataFrame back to the CSV file
-df.to_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022.csv', index=False)
+df.to_csv('/home/ronja/documents/studium/bi-project/data/atp_tourneys_till_2022_coordinates.csv', index=False)
