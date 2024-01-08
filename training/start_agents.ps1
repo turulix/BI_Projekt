@@ -1,4 +1,4 @@
-$agent_count = 10
+$agent_count = 15
 
 $processes = @()
 try
