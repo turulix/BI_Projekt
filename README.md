@@ -19,7 +19,7 @@
 | --- | --- | --- | --- |
 |  | Abgabedokument zusammenstellen |  |  |
 |  | Frage 1 | Tim | |
-|  | Frage 2 | Markus | |
+|  | Frage 2 | Ronja | |
 |  | Frage 3 | Markus | |
 |  | Frage 4 | Nikolai | |
 |  | Frage 5 | Markus | |
