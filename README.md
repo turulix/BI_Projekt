@@ -30,6 +30,8 @@
 
 ### Informationen zur Abgabe:
 
+Stattdessen wird ein systematischer Aufbau des Notebooks erwartet, mit dem Sie für die genannten Zielgruppen „Data Stories“ (also Erkenntnisse aus den Daten) berichten können.  
+
 Für die Analyse sind einige Vorverarbeitungsschritte nötig. Nutzen Sie Ihre Kenntnisse in Python (bzw. den besprochenen Bibliotheken), um die Daten grundsätzlich zu verstehen und anzureichern.  
 Beispiele für Vorverarbeitungs- und Analyseschritte, die Sie in Erwägung ziehen können (nicht abschließende Aufzählung!):
 - Verknüpfen der Spieler- und der Match-Tabelle
