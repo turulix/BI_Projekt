@@ -3,3 +3,4 @@
 training/.sweep_id
 training/wandb
 training/model_output
+.ipynb_checkpoints

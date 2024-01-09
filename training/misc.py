@@ -109,10 +109,10 @@ def process_data(data: pd.DataFrame) -> pd.DataFrame:
     final_data["player_1_entry"].fillna("none", inplace=True)
     final_data["player_2_entry"].fillna("none", inplace=True)
 
-    # Calculate the winner's age difference to the loser.
+    # Calculate the winner's age difference to the other player.
     final_data["age_difference"] = (final_data["player_1_age"] - final_data["player_2_age"]).abs()
 
-    # Calculate the winner's rank difference to the loser.
+    # Calculate the winner's rank difference to the other player.
     final_data["rank_difference"] = (final_data["player_1_rank"] - final_data["player_2_rank"]).abs()
 
     final_data.dropna(inplace=True)
@@ -120,6 +120,7 @@ def process_data(data: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows before dropping NaNs: {len(data)}")
     print(f"Number of rows dropped: {len(data) - len(final_data)}")
 
+    # Make sure all strings are in the same format
     final_data["player_1_hand"] = final_data["player_1_hand"].apply(lambda x: x.upper())
     final_data["player_2_hand"] = final_data["player_2_hand"].apply(lambda x: x.upper())
 
@@ -133,11 +134,7 @@ def process_data(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_train_data(train_data: pd.DataFrame, test_data: pd.DataFrame) -> (pd.DataFrame, pd.Series):
-    # Load Ranking & Player Data.
-    # rank_data = pd.read_csv("../data/atp_rankings_till_2022.csv")
-    # player_data = pd.read_csv("../data/atp_players_till_2022.csv")
-
-    # Process the data, join the Rank & Player data with the train data.
+    # Process the data
     train_data = process_data(train_data)
     test_data = process_data(test_data)
 

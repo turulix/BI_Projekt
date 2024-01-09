@@ -17,6 +17,7 @@ def main():
     train_data, test_data = train_test_split(train_data, test_size=0.2, random_state=42)
 
     x_train, y_train, x_test, y_test = get_train_data(train_data, test_data)
+    # Load model if it exists, otherwise train it.
     if pathlib.Path("../data/model_ensemble.pkl").exists():
         gradient_model = pickle.load(open("../data/model_ensemble.pkl", "rb"))
     else:
