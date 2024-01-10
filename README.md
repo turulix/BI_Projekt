@@ -12,5 +12,8 @@
 | 03.01.2024 | Tim   | 6h    | Frage 1 Fertig                                 |
 | 05.01.2024 | Tim   | 4h    | atp_matches_till_2022_with_career Tabelle      |
 | 06.01.2024 | Tim   | 7h    | Model Training & Hyperparameter Optimierung    |
+| 06.01.2024 | Ronja | 8h    | Feature Creation & Power BI Troubleshooting    |
+| 07.01.2024 | Ronja | 8h    | Feature Creation & Power BI                    |
 | 08.01.2024 | Tim   | 8h    | Model Training & Hyperparameter Optimierung    |
 | 09.01.2024 | Tim   | 9h    | Model Performance Analyse & Feature Importance |
+| 09.01.2024 | Ronja | 11h   | Aufgabe 2 & Power BI Dashboard                 |
