@@ -1,6 +1,8 @@
 # Github Repo für das Projekt der Veranstaltung Data Analysis and Business Intelligence
 
-### Aufgabenstellung:
+### Link zum Github-Repository:
+
+https://github.com/turulix/BI_Projekt
 
 ### Zeiterfassung:
 
