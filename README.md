@@ -15,8 +15,8 @@
 | 03.01.2024 | Tim   | 6h    | Frage 1 Fertig                                 |
 | 03.01.2024 | Nikolai | 6h  | Explorative Datenanalyse                       |
 | 03.01-2024 | Markus | 3h | Folium modul getestet                            |
-| 03.01.2024 | Nikolai | 6h  | Explorative Datenanalyse - Exkurs Stohastik    |
 | 04.01.2024 | Markus | 4h | Aufgabe 3 bearbeitet                             |
+| 05.01.2024 | Nikolai | 6h  | Explorative Datenanalyse - Exkurs Stohastik    |
 | 05.01.2024 | Tim   | 4h    | atp_matches_till_2022_with_career Tabelle      |
 | 05.01.2024 | Markus | 6h | Aufgabe 3 + 5 beginnen                           |
 | 06.01.2024 | Tim   | 7h    | Model Training & Hyperparameter Optimierung    |
