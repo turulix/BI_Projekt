@@ -1,0 +1,6 @@
+Gruppenmitglied Markus Roos (53622)
+Nach der Gruppenbildung hatte ich mir zu Beginn des Projektes Domänenwissen angeeignet (ich hatte überhaupt kein Vorwissen zu Tennis) und bin grob über die Spalten gegangen mit deren Einträgen der uns vorgegebenen Daten. Dabei konnte ich während einigen Besprechungen und unserer Aufgabeneinteilung noch neben meinen eigenen Aufgaben/Pflichten noch meine Gruppenmitglieder bei unklaren Bedeutungen von Spaltenwerten oder Zusammenhängen 
+unterstützen. Als simples Beispiel wäre hier die Bedeutung von bestimmten IOC-Codes, die angegeben wurden (UNK - Nicht United Kingdoms, sondern Unknown) oder auch für die Aufgabenstellung relevante Hinweise (Deutsche Spieler - Daten gehen hin bis zum geteilten Deutschland -> DDR BRD beachten etc.).
+Der größte Teil meiner Zeit ging aber in die Bearbeitung von Aufgabe 3 und Aufgabe 5, wobei ich hier aber sehr gut und offen mit meinen Gruppenmitgliedern über Ergebnisse oder Ideen diskutieren konnte.
+Hierbei hatte ich auch Unterstützung von meinen Gruppenmitgliedern, die z. B. bereits Tabellen  mit zusätzlichen Features angereichert hatten. (Beispiel: Koordinaten bei den Turnieren).
+Ansonsten hatte ich mich noch für organisatorische Gegebenheiten eingesetzt (z.B. Aufgabeneinteilung, Aufbau der Abgaben).
